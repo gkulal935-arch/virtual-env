@@ -1,442 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BBHC Library - Welcome Experience</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .timer-container {
-            text-align: center;
-            background: rgba(255, 255, 255, 0.98);
-            padding: 80px;
-            border-radius: 40px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .timer-number {
-            font-size: 140px;
-            font-weight: bold;
-            color: #667eea;
-            margin: 30px 0;
-            text-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
-            transition: all 0.6s ease;
-            position: relative;
-            z-index: 2;
-            font-family: 'Arial', sans-serif;
-        }
-        
-        .timer-number.counting {
-            animation: countdownPulse 1.2s ease-in-out;
-        }
-        
-        @keyframes countdownPulse {
-            0% { 
-                transform: scale(1) rotate(0deg); 
-                color: #667eea;
-            }
-            25% { 
-                transform: scale(1.3) rotate(5deg); 
-                color: #f093fb;
-            }
-            50% { 
-                transform: scale(1.1) rotate(-5deg); 
-                color: #764ba2;
-            }
-            100% { 
-                transform: scale(1) rotate(0deg); 
-                color: #667eea;
-            }
-        }
-        
-        .timer-title {
-            font-size: 42px;
-            color: #333;
-            margin-bottom: 35px;
-            font-weight: bold;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .timer-subtitle {
-            font-size: 20px;
-            color: #666;
-            margin-bottom: 50px;
-            font-weight: 500;
-        }
-        
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>E-JNANA SETU</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
 
-        
-        .confetti {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #ff6b6b;
-            animation: confettiFall 4s linear infinite;
-            border-radius: 50%;
-        }
-        
-        @keyframes confettiFall {
-            0% {
-                transform: translateY(-100vh) rotate(0deg) scale(0);
-                opacity: 1;
-            }
-            50% {
-                transform: translateY(50vh) rotate(360deg) scale(1);
-                opacity: 0.8;
-            }
-            100% {
-                transform: translateY(100vh) rotate(720deg) scale(0);
-                opacity: 0;
-            }
-        }
-        
-        .firework {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            animation: fireworkExplode 3s ease-out infinite;
-        }
-        
-        @keyframes fireworkExplode {
-            0% {
-                transform: scale(0) rotate(0deg);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.5) rotate(180deg);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(0) rotate(360deg);
-                opacity: 0;
-            }
-        }
-        
-        .redirecting {
-            font-size: 28px;
-            color: #667eea;
-            font-weight: bold;
-            margin-top: 40px;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { 
-                opacity: 1; 
-                transform: scale(1);
-            }
-            50% { 
-                opacity: 0.6; 
-                transform: scale(1.05);
-            }
-            100% { 
-                opacity: 1; 
-                transform: scale(1);
-            }
-        }
-        
-        .logo-reveal {
-            display: none;
-            text-align: center;
-            animation: logoReveal 3s ease-out;
-        }
-        
-        @keyframes logoReveal {
-            0% { 
-                opacity: 0; 
-                transform: scale(0.3) rotate(-360deg); 
-            }
-            30% { 
-                opacity: 0.5; 
-                transform: scale(0.8) rotate(-180deg); 
-            }
-            60% { 
-                opacity: 0.8; 
-                transform: scale(1.2) rotate(-90deg); 
-            }
-            100% { 
-                opacity: 1; 
-                transform: scale(1) rotate(0deg); 
-            }
-        }
-        
-        .logo-text {
-            font-size: 4rem;
-            font-weight: bold;
-            margin: 25px 0;
-            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #4facfe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: textGlow 3s ease-in-out infinite alternate;
-            text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
-        }
-        
-        @keyframes textGlow {
-            0% { 
-                filter: drop-shadow(0 0 15px rgba(102, 126, 234, 0.6));
-                transform: scale(1);
-            }
-            100% { 
-                filter: drop-shadow(0 0 25px rgba(118, 75, 162, 0.9));
-                transform: scale(1.02);
-            }
-        }
-        
-        .book-icon {
-            font-size: 6rem;
-            margin: 30px 0;
-            animation: bookFloat 4s ease-in-out infinite;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
-        }
-        
-        @keyframes bookFloat {
-            0%, 100% { 
-                transform: translateY(0px) rotate(0deg); 
-            }
-            25% { 
-                transform: translateY(-15px) rotate(2deg); 
-            }
-            50% { 
-                transform: translateY(-25px) rotate(0deg); 
-            }
-            75% { 
-                transform: translateY(-15px) rotate(-2deg); 
-            }
-        }
-        
-        .welcome-message {
-            font-size: 1.5rem;
-            color: #666;
-            margin-top: 20px;
-            animation: fadeInUp 1s ease-out 1s both;
-        }
-        
-        @keyframes fadeInUp {
-            0% {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .floating-particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px) translateX(0px);
-                opacity: 0;
-            }
-            50% {
-                transform: translateY(-20px) translateX(10px);
-                opacity: 1;
-            }
-        }
-    </style>
+    /* Header */
+    .fixed-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+      z-index: 1000;
+      padding: 12px 0;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 8px;
+    }
+
+    .book-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .book {
+      width: 30px;
+      height: 8px;
+      border-radius: 2px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .book-1 { background: #4ade80; }
+    .book-2 { background: #ef4444; }
+    .book-3 { background: #60a5fa; }
+
+    .title-text {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #1f2937;
+    }
+
+    .department-info,
+    .college-name {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .college-name {
+      color: #5D3A00;
+      font-weight: bold;
+    }
+
+    .subtitle-section {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .subtitle-main {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .subtitle-secondary {
+      font-size: 1rem;
+      font-style: italic;
+      color: #6b7280;
+    }
+
+    /* Main Content */
+    .main-content {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 180px;
+      padding-bottom: 40px;
+    }
+
+    .timer-container {
+      background: rgba(255, 255, 255, 0.98);
+      padding: 60px 40px;
+      border-radius: 30px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      backdrop-filter: blur(20px);
+      max-width: 600px;
+      width: 90%;
+    }
+
+    .logo-text {
+      font-size: 3rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .book-icon {
+      font-size: 4rem;
+      margin: 20px 0;
+    }
+
+    .welcome-message {
+      font-size: 1.2rem;
+      color: #444;
+      margin-top: 10px;
+    }
+
+    #timerNumber {
+      font-size: 100px;
+      font-weight: bold;
+      color: #667eea;
+      margin: 20px 0;
+    }
+
+    .redirecting {
+      font-size: 1.4rem;
+      margin-top: 30px;
+      font-weight: bold;
+      color: #667eea;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.05); }
+    }
+
+    .confetti, .firework {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+    }
+
+    .confetti {
+      width: 10px;
+      height: 10px;
+      animation: confettiFall 4s linear infinite;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+
+    .firework {
+      width: 6px;
+      height: 6px;
+      animation: fireworkExplode 3s ease-out infinite;
+    }
+
+    @keyframes fireworkExplode {
+      0% { transform: scale(0) rotate(0deg); opacity: 1; }
+      50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+      100% { transform: scale(0) rotate(360deg); opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .logo-text { font-size: 2.4rem; }
+      .book-icon { font-size: 3rem; }
+      #timerNumber { font-size: 80px; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Floating Particles Background -->
-    <div class="floating-particles">
-        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
-        <div class="particle" style="left: 20%; animation-delay: 1s;"></div>
-        <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
-        <div class="particle" style="left: 40%; animation-delay: 3s;"></div>
-        <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
-        <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
-        <div class="particle" style="left: 70%; animation-delay: 0.5s;"></div>
-        <div class="particle" style="left: 80%; animation-delay: 1.5s;"></div>
-        <div class="particle" style="left: 90%; animation-delay: 2.5s;"></div>
-    </div>
 
+  <!-- Fixed Header -->
+  <div class="fixed-header">
+    <div class="header-content">
+      <div class="header-title">
+        <div class="book-stack">
+          <div class="book book-1"></div>
+          <div class="book book-2"></div>
+          <div class="book book-3"></div>
+        </div>
+        <span class="title-text">E-JNANA SETU</span>
+      </div>
+      <div class="department-info">Department of Library & Information Centre</div>
+      <div class="college-name">Dr. B. B. Hegde First Grade College, Kundapura</div>
+      <div class="subtitle-section">
+        <div class="subtitle-main">Inauguration of "E-Jnana Setu"</div>
+        <div class="subtitle-secondary">A New Era of Digital Library Management</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
     <div class="timer-container">
-        <!-- Timer Title -->
-        <div class="timer-title">🎉 Welcome to BBHC Library! 🎉</div>
-        
-        <!-- Timer Subtitle -->
-        <div class="timer-subtitle">Preparing your experience...</div>
-        
-        <!-- Timer Number -->
-        <div id="timerNumber" class="timer-number">10</div>
-        
-        <!-- Redirecting Message -->
-        <div id="redirecting" class="redirecting" style="display: none;">
-            Redirecting to Library System...
-        </div>
-        
-        <!-- Logo Reveal Section -->
-        <div id="logoReveal" class="logo-reveal">
-            <div class="logo-text">E-JNANA</div>
-            <div class="book-icon">📚</div>
-            <div class="logo-text">SETU</div>
-            <div class="welcome-message">Welcome to BBHC Library Management System</div>
-        </div>
+      <div id="timerNumber">10</div>
+      <div class="logo-text" style="display: none;" id="logoRevealText">E-JNANA</div>
+      <div class="book-icon" style="display: none;" id="logoIcon">📚</div>
+      <div class="logo-text" style="display: none;" id="logoRevealText2">SETU</div>
+      <div class="welcome-message" style="display: none;" id="welcomeMsg">Welcome to BBHC Library Management System</div>
+      <div id="redirecting" class="redirecting" style="display: none;">Redirecting to Library System...</div>
     </div>
+  </div>
 
-    <script>
-        let countdown = 10;
-        const timerNumber = document.getElementById('timerNumber');
-        const redirecting = document.getElementById('redirecting');
-        const logoReveal = document.getElementById('logoReveal');
-        
-        // Create enhanced confetti
-        function createConfetti() {
-            for (let i = 0; i < 80; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.animationDelay = Math.random() * 4 + 's';
-                confetti.style.background = [
-                    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57',
-                    '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'
-                ][Math.floor(Math.random() * 10)];
-                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-                document.body.appendChild(confetti);
-                
-                setTimeout(() => {
-                    if (confetti.parentNode) {
-                        confetti.parentNode.removeChild(confetti);
-                    }
-                }, 4000);
-            }
+  <script>
+    let countdown = 10;
+    const timerNumber = document.getElementById('timerNumber');
+    const redirecting = document.getElementById('redirecting');
+    const logoRevealText = document.getElementById('logoRevealText');
+    const logoRevealText2 = document.getElementById('logoRevealText2');
+    const logoIcon = document.getElementById('logoIcon');
+    const welcomeMsg = document.getElementById('welcomeMsg');
+
+    function createConfetti() {
+      for (let i = 0; i < 40; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        confetti.style.background = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][Math.floor(Math.random() * 5)];
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 4000);
+      }
+    }
+
+    function createFireworks() {
+      for (let i = 0; i < 20; i++) {
+        const firework = document.createElement('div');
+        firework.className = 'firework';
+        firework.style.left = Math.random() * 100 + 'vw';
+        firework.style.top = Math.random() * 100 + 'vh';
+        firework.style.background = ['#ff9ff3', '#54a0ff', '#5f27cd'][Math.floor(Math.random() * 3)];
+        document.body.appendChild(firework);
+        setTimeout(() => firework.remove(), 4000);
+      }
+    }
+
+    function startCountdown() {
+      const interval = setInterval(() => {
+        countdown--;
+        timerNumber.textContent = countdown;
+
+        if (countdown === 7) createConfetti();
+        if (countdown === 5) createFireworks();
+        if (countdown === 3) {
+          createConfetti();
+          createFireworks();
         }
-        
-        // Create enhanced fireworks
-        function createFireworks() {
-            for (let i = 0; i < 30; i++) {
-                const firework = document.createElement('div');
-                firework.className = 'firework';
-                firework.style.left = Math.random() * 100 + 'vw';
-                firework.style.top = Math.random() * 100 + 'vh';
-                firework.style.background = [
-                    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57',
-                    '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'
-                ][Math.floor(Math.random() * 10)];
-                firework.style.animationDelay = Math.random() * 3 + 's';
-                firework.style.animationDuration = (2 + Math.random() * 2) + 's';
-                document.body.appendChild(firework);
-                
-                setTimeout(() => {
-                    if (firework.parentNode) {
-                        firework.parentNode.removeChild(firework);
-                    }
-                }, 5000);
-            }
+
+        if (countdown <= 0) {
+          clearInterval(interval);
+          timerNumber.style.display = 'none';
+          logoRevealText.style.display = 'block';
+          logoRevealText2.style.display = 'block';
+          logoIcon.style.display = 'block';
+          welcomeMsg.style.display = 'block';
+          redirecting.style.display = 'block';
+
+          createConfetti();
+          createFireworks();
+
+          setTimeout(() => {
+            window.location.href = '/library';
+          }, 4000);
         }
-        
-        // Enhanced countdown function
-        function startCountdown() {
-            const interval = setInterval(() => {
-                countdown--;
-                
-                // Add enhanced counting animation
-                timerNumber.classList.add('counting');
-                setTimeout(() => {
-                    timerNumber.classList.remove('counting');
-                }, 600);
-                
-                // Update display
-                timerNumber.textContent = countdown;
-                
-                // Create effects for certain numbers
-                if (countdown === 7) {
-                    createConfetti();
-                }
-                
-                if (countdown === 5) {
-                    createFireworks();
-                }
-                
-                if (countdown === 3) {
-                    createConfetti();
-                    createFireworks();
-                }
-                
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    
-                                         // Hide timer elements
-                     timerNumber.style.display = 'none';
-                     document.querySelector('.timer-subtitle').style.display = 'none';
-                     document.querySelector('.timer-title').style.display = 'none';
-                    
-                    // Show logo reveal
-                    logoReveal.style.display = 'block';
-                    
-                    // Create final celebration effects
-                    createConfetti();
-                    createFireworks();
-                    
-                    // Redirect after logo animation completes
-                    setTimeout(() => {
-                        window.location.href = '/library';
-                    }, 4000);
-                }
-            }, 1000);
-        }
-        
-        // Start countdown when page loads
-        window.addEventListener('load', () => {
-            // Small delay to ensure smooth animation
-            setTimeout(startCountdown, 800);
-        });
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === 'r') {
-                window.location.href = '/library';
-            }
-            if (e.key === 'Escape') {
-                window.location.href = '/';
-            }
-        });
-        
-        // Add some interactive elements
-        document.addEventListener('mousemove', (e) => {
-            const particles = document.querySelectorAll('.particle');
-            particles.forEach((particle, index) => {
-                const speed = (index + 1) * 0.5;
-                const x = (e.clientX * speed) / 1000;
-                const y = (e.clientY * speed) / 1000;
-                particle.style.transform = `translate(${x}px, ${y}px)`;
-            });
-        });
-    </script>
+      }, 1000);
+    }
+
+    window.addEventListener('load', () => {
+      setTimeout(startCountdown, 800);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'r') window.location.href = '/library';
+      if (e.key === 'Escape') window.location.href = '/';
+    });
+  </script>
 </body>
 </html>
