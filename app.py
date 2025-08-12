@@ -49,7 +49,18 @@ for file_name in os.listdir(folder_path):
             student_data.update(data) 
 
 @app.route('/')
+def initial_page():
+    """Initial blank page with virtual mouse activation"""
+    return render_template('initial_page.html')
+
+@app.route('/timer')
+def timer_page():
+    """Timer page that counts down from 10 to 0"""
+    return render_template('timer_page.html')
+
+@app.route('/library')
 def home():
+    """Main library management page"""
     try:
         All_issued_books_history = issued_books.find()
         All_issued_books_history = list(All_issued_books_history)
@@ -835,6 +846,34 @@ def download_range_date_report():
     response.headers["Content-Disposition"] = f"attachment; filename=Date_Range_Report_{start_date}_to_{end_date}.xlsx"
     response.headers["Content-type"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     return response
+
+@app.route('/virtual-mouse')
+def virtual_mouse():
+    return render_template('virtual_mouse.html')
+
+@app.route('/launch-virtual-mouse')
+def launch_virtual_mouse():
+    """Launch the virtual mouse application"""
+    try:
+        import subprocess
+        import sys
+        from pathlib import Path
+        
+        # Get the directory of this script
+        script_dir = Path(__file__).parent.absolute()
+        launcher_script = script_dir / "launch_virtual_mouse.py"
+        
+        if launcher_script.exists():
+            # Launch in background
+            subprocess.Popen([sys.executable, str(launcher_script)], 
+                           stdout=subprocess.DEVNULL, 
+                           stderr=subprocess.DEVNULL)
+            return jsonify({"success": True, "message": "Virtual mouse launched successfully"})
+        else:
+            return jsonify({"success": False, "message": "Virtual mouse launcher not found"})
+            
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"})
 
 
 if __name__ == '__main__':

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - BBHC Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 1000;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        
+        .debug-info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff88;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 1000;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+        
+        .hand-cursor {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #00ff88 0%, #00cc66 70%, transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            box-shadow: 0 0 30px #00ff88;
+            display: none;
+            transition: all 0.1s ease;
+        }
+        
+        .instructions {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .gesture-detected {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 255, 0, 0.9);
+            color: white;
+            padding: 30px 60px;
+            border-radius: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 1001;
+            display: none;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 1001;
+            max-width: 400px;
+        }
+        
+        .test-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="camera-container">
+        <!-- Loading Screen -->
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Initializing Virtual Mouse Control...</p>
+        </div>
+        
+        <!-- Video Element -->
+        <video id="video" autoplay muted style="display: none;"></video>
+        
+        <!-- Canvas for Hand Landmarks -->
+        <canvas id="handLandmarks" style="position: absolute; top: 0; left: 0; pointer-events: none; z-index: 998;"></canvas>
+        
+        <!-- Status Display -->
+        <div id="status" class="status">
+            Waiting for camera...
+        </div>
+        
+        <!-- Debug Information -->
+        <div id="debugInfo" class="debug-info">
+            Debug Info
+        </div>
+        
+        <!-- Virtual Hand Cursor -->
+        <div id="handCursor" class="hand-cursor"></div>
+        
+        <!-- Gesture Detected Message -->
+        <div id="gestureDetected" class="gesture-detected">
+            🎯 Thumb Gesture Detected! 🎯
+        </div>
+        
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3 class="font-bold mb-2">Welcome to BBHC Library</h3>
+            <p class="text-sm">Show your hand to activate virtual mouse control</p>
+            <p class="text-sm">Make a pinch gesture (thumb + index finger) to continue</p>
+        </div>
+        
+        <!-- Test Button -->
+        <button id="testButton" class="test-button" onclick="testGesture()">
+            Test Gesture (T)
+        </button>
+    </div>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1620248258/drawing_utils.js"></script>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('handLandmarks');
+        const ctx = canvas.getContext('2d');
+        const handCursor = document.getElementById('handCursor');
+        const statusEl = document.getElementById('status');
+        const loadingEl = document.getElementById('loading');
+        const gestureDetectedEl = document.getElementById('gestureDetected');
+        const debugInfoEl = document.getElementById('debugInfo');
+        
+        let isHandVisible = false;
+        let handPosition = { x: 0, y: 0 };
+        let gestureDetected = false;
+        let hands = null;
+        let camera = null;
+        let frameCount = 0;
+        let lastHandTime = 0;
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Update debug information
+        function updateDebugInfo() {
+            const now = Date.now();
+            const timeSinceLastHand = now - lastHandTime;
+            debugInfoEl.innerHTML = `
+                Frame: ${frameCount}<br>
+                Hand Visible: ${isHandVisible}<br>
+                Time Since Hand: ${timeSinceLastHand}ms<br>
+                Gesture Detected: ${gestureDetected}<br>
+                MediaPipe: ${hands ? 'Loaded' : 'Not Loaded'}<br>
+                Camera: ${camera ? 'Started' : 'Not Started'}
+            `;
+        }
+        
+        // Initialize MediaPipe Hands
+        async function initializeMediaPipe() {
+            try {
+                statusEl.textContent = "Loading MediaPipe...";
+                
+                // Check if MediaPipe is available
+                if (typeof Hands === 'undefined') {
+                    throw new Error('MediaPipe Hands not loaded');
+                }
+                
+                hands = new Hands({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
+                });
+                
+                hands.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.5, // Lowered for better detection
+                    minTrackingConfidence: 0.5
+                });
+                
+                // Hand detection results
+                hands.onResults(onResults);
+                
+                statusEl.textContent = "MediaPipe loaded - Starting camera...";
+                return true;
+                
+            } catch (error) {
+                console.error('MediaPipe initialization error:', error);
+                statusEl.textContent = "MediaPipe failed to load";
+                showError(`MediaPipe Error: ${error.message}`);
+                return false;
+            }
+        }
+        
+        // Hand detection results
+        function onResults(results) {
+            frameCount++;
+            
+            if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+                isHandVisible = false;
+                handCursor.style.display = 'none';
+                if (Date.now() - lastHandTime > 1000) { // Only update status if no hand for 1 second
+                    statusEl.textContent = "No hand detected - Show your hand";
+                }
+                updateDebugInfo();
+                return;
+            }
+            
+            const hand = results.multiHandLandmarks[0];
+            isHandVisible = true;
+            lastHandTime = Date.now();
+            
+            // Convert hand coordinates to screen coordinates
+            handPosition.x = hand[8].x * canvas.width; // Index tip
+            handPosition.y = hand[8].y * canvas.height;
+            
+            // Update virtual mouse cursor
+            handCursor.style.display = 'block';
+            handCursor.style.left = (handPosition.x - 15) + 'px';
+            handCursor.style.top = (handPosition.y - 15) + 'px';
+            
+            // Check for thumb gesture (pinch between thumb and index finger)
+            let thumbTip = hand[4];
+            let indexTip = hand[8];
+            let distance = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
+            
+            // More lenient distance threshold
+            if (distance < 0.08 && !gestureDetected) { // Increased from 0.05 to 0.08
+                gestureDetected = true;
+                handCursor.style.background = 'radial-gradient(circle, #ff0080 0%, #cc0066 70%, transparent 100%)';
+                handCursor.style.boxShadow = '0 0 40px #ff0080';
+                statusEl.textContent = "🎯 Thumb gesture detected!";
+                
+                // Show gesture detected message
+                gestureDetectedEl.style.display = 'block';
+                
+                // Wait 2 seconds then redirect to timer page
+                setTimeout(() => {
+                    window.location.href = '/timer';
+                }, 2000);
+                
+            } else if (distance >= 0.08) {
+                handCursor.style.background = 'radial-gradient(circle, #00ff88 0%, #00cc66 70%, transparent 100%)';
+                handCursor.style.boxShadow = '0 0 30px #00ff88';
+                statusEl.textContent = `Hand detected - Distance: ${distance.toFixed(3)} - Make pinch gesture to continue`;
+            }
+            
+            // Draw hand landmarks
+            drawHandLandmarks(hand);
+            updateDebugInfo();
+        }
+        
+        // Draw hand skeleton
+        function drawHandLandmarks(hand) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            
+            // Draw connections between landmarks
+            const connections = [
+                [0, 1], [1, 2], [2, 3], [3, 4], // thumb
+                [0, 5], [5, 6], [6, 7], [7, 8], // index
+                [5, 9], [9, 10], [10, 11], [11, 12], // middle
+                [9, 13], [13, 14], [14, 15], [15, 16], // ring
+                [13, 17], [17, 18], [18, 19], [19, 20], // pinky
+                [0, 17] // palm
+            ];
+            
+            connections.forEach(([start, end]) => {
+                ctx.beginPath();
+                ctx.moveTo(hand[start].x * canvas.width, hand[start].y * canvas.height);
+                ctx.lineTo(hand[end].x * canvas.width, hand[end].y * canvas.height);
+                ctx.stroke();
+            });
+            
+            // Draw landmark points
+            hand.forEach((landmark, index) => {
+                ctx.beginPath();
+                ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 5, 0, 2 * Math.PI);
+                
+                // Highlight thumb and index finger
+                if (index === 4 || index === 8) {
+                    ctx.fillStyle = '#ff0080';
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.stroke();
+                } else {
+                    ctx.fillStyle = '#00ff88';
+                }
+                
+                ctx.fill();
+            });
+        }
+        
+        // Initialize camera
+        async function initializeCamera() {
+            try {
+                if (typeof Camera === 'undefined') {
+                    throw new Error('MediaPipe Camera not loaded');
+                }
+                
+                camera = new Camera(video, {
+                    onFrame: async () => {
+                        if (hands) {
+                            await hands.send({image: video});
+                        }
+                    },
+                    width: 640,
+                    height: 480
+                });
+                
+                await camera.start();
+                loadingEl.style.display = 'none';
+                video.style.display = 'block';
+                statusEl.textContent = "Camera started - Show your hand";
+                updateDebugInfo();
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                statusEl.textContent = "Camera error - Please check permissions";
+                showError(`Camera Error: ${error.message}`);
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            const errorEl = document.createElement('div');
+            errorEl.className = 'error-message';
+            errorEl.innerHTML = `
+                <h3>Error</h3>
+                <p>${message}</p>
+                <p>Please refresh the page or check browser permissions</p>
+            `;
+            document.body.appendChild(errorEl);
+            
+            // Remove error after 10 seconds
+            setTimeout(() => {
+                if (errorEl.parentNode) {
+                    errorEl.parentNode.removeChild(errorEl);
+                }
+            }, 10000);
+        }
+        
+        // Test gesture function
+        function testGesture() {
+            gestureDetected = true;
+            gestureDetectedEl.style.display = 'block';
+            statusEl.textContent = "🎯 Test gesture triggered!";
+            setTimeout(() => {
+                window.location.href = '/timer';
+            }, 2000);
+        }
+        
+        // Main initialization
+        async function initialize() {
+            try {
+                // Wait for MediaPipe to load
+                let attempts = 0;
+                while (typeof Hands === 'undefined' && attempts < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (typeof Hands === 'undefined') {
+                    throw new Error('MediaPipe failed to load after 5 seconds');
+                }
+                
+                const mediaPipeLoaded = await initializeMediaPipe();
+                if (mediaPipeLoaded) {
+                    await initializeCamera();
+                }
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showError(`Initialization Error: ${error.message}`);
+            }
+        }
+        
+        // Start initialization when page loads
+        window.addEventListener('load', initialize);
+        
+        // Keyboard controls for testing
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 't') {
+                testGesture();
+            }
+        });
+        
+        // Update debug info every second
+        setInterval(updateDebugInfo, 1000);
+    </script>
+</body>
+</html>

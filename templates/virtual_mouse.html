@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Mouse Control - BBHC Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        
+        .hand-cursor {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #00ff88 0%, #00cc66 70%, transparent 100%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            box-shadow: 0 0 30px #00ff88;
+            display: none;
+            transition: all 0.1s ease;
+        }
+        
+        .back-button {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-button:hover {
+            transform: translateX(-50%) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+        
+        .launch-python-btn {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #805ad5, #553c9a);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .launch-python-btn:hover {
+            transform: translateX(-50%) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+        
+        .instructions {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            z-index: 1000;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            z-index: 1000;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hand-landmarks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 998;
+        }
+    </style>
+</head>
+<body>
+    <div class="camera-container">
+        <!-- Loading Screen -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Initializing Virtual Mouse Control...</p>
+            <p class="text-sm mt-2">Please allow camera access when prompted</p>
+        </div>
+        
+        <!-- Camera Feed -->
+        <video id="video" autoplay playsinline style="display: none;"></video>
+        <canvas id="handLandmarks" class="hand-landmarks"></canvas>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🎮 Virtual Mouse Control</h2>
+            <div class="space-y-3">
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span class="text-sm text-gray-700">Camera Active</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span class="text-sm text-gray-700">Hand Detected</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span class="text-sm text-gray-700">Click Gesture</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Display -->
+        <div id="status" class="status">
+            Waiting for camera...
+        </div>
+        
+        <!-- Virtual Hand Cursor -->
+        <div id="handCursor" class="hand-cursor"></div>
+        
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3 class="font-bold mb-2">How to Use:</h3>
+            <p class="text-sm">• Move your hand to control the mouse</p>
+            <p class="text-sm">• Touch thumb and index finger to click</p>
+            <p class="text-sm">• Press 'Q' to quit</p>
+            <p class="text-sm mt-2">💡 Tip: Click "Launch Python App" for advanced features!</p>
+        </div>
+        
+        <!-- Launch Python App Button -->
+        <button class="launch-python-btn" onclick="launchPythonApp()">
+            🐍 Launch Python App
+        </button>
+        
+        <!-- Back Button -->
+        <button class="back-button" onclick="goBack()">
+            ← Back to Library
+        </button>
+    </div>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('handLandmarks');
+        const ctx = canvas.getContext('2d');
+        const handCursor = document.getElementById('handCursor');
+        const statusEl = document.getElementById('status');
+        const loadingEl = document.getElementById('loading');
+        
+        let isHandVisible = false;
+        let handPosition = { x: 0, y: 0 };
+        
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Initialize MediaPipe Hands
+        const hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+        
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.7,
+            minTrackingConfidence: 0.7
+        });
+        
+        // Hand detection results
+        function onResults(results) {
+            if (!results.multiHandLandmarks) {
+                isHandVisible = false;
+                handCursor.style.display = 'none';
+                statusEl.textContent = "No hand detected";
+                return;
+            }
+            
+            const hand = results.multiHandLandmarks[0];
+            isHandVisible = true;
+            
+            // Convert hand coordinates to screen coordinates
+            handPosition.x = hand[8].x * canvas.width; // Index tip
+            handPosition.y = hand[8].y * canvas.height;
+            
+            // Update virtual mouse cursor
+            handCursor.style.display = 'block';
+            handCursor.style.left = (handPosition.x - 15) + 'px';
+            handCursor.style.top = (handPosition.y - 15) + 'px';
+            
+            // Check for click gesture (thumb and index finger close)
+            let thumbTip = hand[4];
+            let indexTip = hand[8];
+            let distance = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
+            
+            if (distance < 0.05) { // Close enough to click
+                handCursor.style.background = 'radial-gradient(circle, #ff0080 0%, #cc0066 70%, transparent 100%)';
+                handCursor.style.boxShadow = '0 0 40px #ff0080';
+                statusEl.textContent = "Click detected! 🖱️";
+                
+                // Simulate mouse click
+                simulateClick();
+            } else {
+                handCursor.style.background = 'radial-gradient(circle, #00ff88 0%, #00cc66 70%, transparent 100%)';
+                handCursor.style.boxShadow = '0 0 30px #00ff88';
+                statusEl.textContent = "Hand detected - Move to control mouse";
+            }
+            
+            // Draw hand landmarks
+            drawHandLandmarks(hand);
+        }
+        
+        // Draw hand skeleton
+        function drawHandLandmarks(hand) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            
+            // Draw connections between landmarks
+            const connections = [
+                [0, 1], [1, 2], [2, 3], [3, 4], // thumb
+                [0, 5], [5, 6], [6, 7], [7, 8], // index
+                [5, 9], [9, 10], [10, 11], [11, 12], // middle
+                [9, 13], [13, 14], [14, 15], [15, 16], // ring
+                [13, 17], [17, 18], [18, 19], [19, 20], // pinky
+                [0, 17] // palm
+            ];
+            
+            connections.forEach(([start, end]) => {
+                ctx.beginPath();
+                ctx.moveTo(hand[start].x * canvas.width, hand[start].y * canvas.height);
+                ctx.lineTo(hand[end].x * canvas.width, hand[end].y * canvas.height);
+                ctx.stroke();
+            });
+            
+            // Draw landmark points
+            hand.forEach(landmark => {
+                ctx.beginPath();
+                ctx.arc(landmark.x * canvas.width, landmark.y * canvas.height, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = '#00ff88';
+                ctx.fill();
+            });
+        }
+        
+        // Simulate mouse click
+        function simulateClick() {
+            // Create a visual click effect
+            const clickEffect = document.createElement('div');
+            clickEffect.style.position = 'absolute';
+            clickEffect.style.left = (handPosition.x - 25) + 'px';
+            clickEffect.style.top = (handPosition.y - 25) + 'px';
+            clickEffect.style.width = '50px';
+            clickEffect.style.height = '50px';
+            clickEffect.style.border = '3px solid #ff0080';
+            clickEffect.style.borderRadius = '50%';
+            clickEffect.style.animation = 'clickRipple 0.6s ease-out';
+            clickEffect.style.pointerEvents = 'none';
+            clickEffect.style.zIndex = '1001';
+            
+            document.body.appendChild(clickEffect);
+            
+            setTimeout(() => {
+                if (clickEffect.parentNode) {
+                    clickEffect.parentNode.removeChild(clickEffect);
+                }
+            }, 600);
+        }
+        
+        // Add click ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes clickRipple {
+                0% { transform: scale(0); opacity: 1; }
+                100% { transform: scale(2); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Set up hands processing
+        hands.onResults(onResults);
+        
+        // Initialize camera
+        const camera = new Camera(video, {
+            onFrame: async () => {
+                await hands.send({image: video});
+            },
+            width: 640,
+            height: 480
+        });
+        
+        // Start camera and hide loading
+        camera.start().then(() => {
+            loadingEl.style.display = 'none';
+            video.style.display = 'block';
+            statusEl.textContent = "Camera started - Show your hand";
+        }).catch(err => {
+            console.error('Camera error:', err);
+            statusEl.textContent = "Camera error - Please check permissions";
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'q') {
+                goBack();
+            }
+        });
+        
+        // Navigation function
+        function goBack() {
+            window.location.href = '/';
+        }
+        
+        // Launch Python application
+        function launchPythonApp() {
+            fetch('/launch-virtual-mouse')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        statusEl.textContent = "🐍 Python app launched successfully!";
+                        statusEl.style.background = 'rgba(0, 255, 0, 0.8)';
+                        setTimeout(() => {
+                            statusEl.style.background = 'rgba(0, 0, 0, 0.8)';
+                        }, 3000);
+                    } else {
+                        statusEl.textContent = "❌ Error: " + data.message;
+                        statusEl.style.background = 'rgba(255, 0, 0, 0.8)';
+                        setTimeout(() => {
+                            statusEl.style.background = 'rgba(0, 0, 0, 0.8)';
+                        }, 3000);
+                    }
+                })
+                .catch(error => {
+                    statusEl.textContent = "❌ Error launching Python app";
+                    statusEl.style.background = 'rgba(255, 0, 0, 0.8)';
+                    setTimeout(() => {
+                        statusEl.style.background = 'rgba(0, 0, 0, 0.8)';
+                    }, 3000);
+                });
+        }
+        
+        // Update status based on hand visibility
+        setInterval(() => {
+            if (isHandVisible) {
+                document.querySelector('.controls .bg-blue-500').style.backgroundColor = '#3b82f6';
+            } else {
+                document.querySelector('.controls .bg-blue-500').style.backgroundColor = '#9ca3af';
+            }
+        }, 100);
+    </script>
+</body>
+</html>

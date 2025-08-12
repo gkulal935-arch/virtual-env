@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBHC Library - Welcome Experience</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .timer-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 80px;
+            border-radius: 40px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .timer-number {
+            font-size: 140px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 30px 0;
+            text-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+            transition: all 0.6s ease;
+            position: relative;
+            z-index: 2;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .timer-number.counting {
+            animation: countdownPulse 1.2s ease-in-out;
+        }
+        
+        @keyframes countdownPulse {
+            0% { 
+                transform: scale(1) rotate(0deg); 
+                color: #667eea;
+            }
+            25% { 
+                transform: scale(1.3) rotate(5deg); 
+                color: #f093fb;
+            }
+            50% { 
+                transform: scale(1.1) rotate(-5deg); 
+                color: #764ba2;
+            }
+            100% { 
+                transform: scale(1) rotate(0deg); 
+                color: #667eea;
+            }
+        }
+        
+        .timer-title {
+            font-size: 42px;
+            color: #333;
+            margin-bottom: 35px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .timer-subtitle {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 50px;
+            font-weight: 500;
+        }
+        
+
+        
+        .confetti {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #ff6b6b;
+            animation: confettiFall 4s linear infinite;
+            border-radius: 50%;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg) scale(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(50vh) rotate(360deg) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg) scale(0);
+                opacity: 0;
+            }
+        }
+        
+        .firework {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: fireworkExplode 3s ease-out infinite;
+        }
+        
+        @keyframes fireworkExplode {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .redirecting {
+            font-size: 28px;
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 40px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.6; 
+                transform: scale(1.05);
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+        }
+        
+        .logo-reveal {
+            display: none;
+            text-align: center;
+            animation: logoReveal 3s ease-out;
+        }
+        
+        @keyframes logoReveal {
+            0% { 
+                opacity: 0; 
+                transform: scale(0.3) rotate(-360deg); 
+            }
+            30% { 
+                opacity: 0.5; 
+                transform: scale(0.8) rotate(-180deg); 
+            }
+            60% { 
+                opacity: 0.8; 
+                transform: scale(1.2) rotate(-90deg); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) rotate(0deg); 
+            }
+        }
+        
+        .logo-text {
+            font-size: 4rem;
+            font-weight: bold;
+            margin: 25px 0;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #4facfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textGlow 3s ease-in-out infinite alternate;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        @keyframes textGlow {
+            0% { 
+                filter: drop-shadow(0 0 15px rgba(102, 126, 234, 0.6));
+                transform: scale(1);
+            }
+            100% { 
+                filter: drop-shadow(0 0 25px rgba(118, 75, 162, 0.9));
+                transform: scale(1.02);
+            }
+        }
+        
+        .book-icon {
+            font-size: 6rem;
+            margin: 30px 0;
+            animation: bookFloat 4s ease-in-out infinite;
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+        }
+        
+        @keyframes bookFloat {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg); 
+            }
+            25% { 
+                transform: translateY(-15px) rotate(2deg); 
+            }
+            50% { 
+                transform: translateY(-25px) rotate(0deg); 
+            }
+            75% { 
+                transform: translateY(-15px) rotate(-2deg); 
+            }
+        }
+        
+        .welcome-message {
+            font-size: 1.5rem;
+            color: #666;
+            margin-top: 20px;
+            animation: fadeInUp 1s ease-out 1s both;
+        }
+        
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .floating-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) translateX(0px);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(-20px) translateX(10px);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Particles Background -->
+    <div class="floating-particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 0.5s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 1.5s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 2.5s;"></div>
+    </div>
+
+    <div class="timer-container">
+        <!-- Timer Title -->
+        <div class="timer-title">🎉 Welcome to BBHC Library! 🎉</div>
+        
+        <!-- Timer Subtitle -->
+        <div class="timer-subtitle">Preparing your experience...</div>
+        
+        <!-- Timer Number -->
+        <div id="timerNumber" class="timer-number">10</div>
+        
+        <!-- Redirecting Message -->
+        <div id="redirecting" class="redirecting" style="display: none;">
+            Redirecting to Library System...
+        </div>
+        
+        <!-- Logo Reveal Section -->
+        <div id="logoReveal" class="logo-reveal">
+            <div class="logo-text">E-JNANA</div>
+            <div class="book-icon">📚</div>
+            <div class="logo-text">SETU</div>
+            <div class="welcome-message">Welcome to BBHC Library Management System</div>
+        </div>
+    </div>
+
+    <script>
+        let countdown = 10;
+        const timerNumber = document.getElementById('timerNumber');
+        const redirecting = document.getElementById('redirecting');
+        const logoReveal = document.getElementById('logoReveal');
+        
+        // Create enhanced confetti
+        function createConfetti() {
+            for (let i = 0; i < 80; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.animationDelay = Math.random() * 4 + 's';
+                confetti.style.background = [
+                    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57',
+                    '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'
+                ][Math.floor(Math.random() * 10)];
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.parentNode.removeChild(confetti);
+                    }
+                }, 4000);
+            }
+        }
+        
+        // Create enhanced fireworks
+        function createFireworks() {
+            for (let i = 0; i < 30; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = Math.random() * 100 + 'vw';
+                firework.style.top = Math.random() * 100 + 'vh';
+                firework.style.background = [
+                    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57',
+                    '#ff9ff3', '#54a0ff', '#5f27cd', '#00d2d3', '#ff9f43'
+                ][Math.floor(Math.random() * 10)];
+                firework.style.animationDelay = Math.random() * 3 + 's';
+                firework.style.animationDuration = (2 + Math.random() * 2) + 's';
+                document.body.appendChild(firework);
+                
+                setTimeout(() => {
+                    if (firework.parentNode) {
+                        firework.parentNode.removeChild(firework);
+                    }
+                }, 5000);
+            }
+        }
+        
+        // Enhanced countdown function
+        function startCountdown() {
+            const interval = setInterval(() => {
+                countdown--;
+                
+                // Add enhanced counting animation
+                timerNumber.classList.add('counting');
+                setTimeout(() => {
+                    timerNumber.classList.remove('counting');
+                }, 600);
+                
+                // Update display
+                timerNumber.textContent = countdown;
+                
+                // Create effects for certain numbers
+                if (countdown === 7) {
+                    createConfetti();
+                }
+                
+                if (countdown === 5) {
+                    createFireworks();
+                }
+                
+                if (countdown === 3) {
+                    createConfetti();
+                    createFireworks();
+                }
+                
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    
+                                         // Hide timer elements
+                     timerNumber.style.display = 'none';
+                     document.querySelector('.timer-subtitle').style.display = 'none';
+                     document.querySelector('.timer-title').style.display = 'none';
+                    
+                    // Show logo reveal
+                    logoReveal.style.display = 'block';
+                    
+                    // Create final celebration effects
+                    createConfetti();
+                    createFireworks();
+                    
+                    // Redirect after logo animation completes
+                    setTimeout(() => {
+                        window.location.href = '/library';
+                    }, 4000);
+                }
+            }, 1000);
+        }
+        
+        // Start countdown when page loads
+        window.addEventListener('load', () => {
+            // Small delay to ensure smooth animation
+            setTimeout(startCountdown, 800);
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'r') {
+                window.location.href = '/library';
+            }
+            if (e.key === 'Escape') {
+                window.location.href = '/';
+            }
+        });
+        
+        // Add some interactive elements
+        document.addEventListener('mousemove', (e) => {
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach((particle, index) => {
+                const speed = (index + 1) * 0.5;
+                const x = (e.clientX * speed) / 1000;
+                const y = (e.clientY * speed) / 1000;
+                particle.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+    </script>
+</body>
+</html>

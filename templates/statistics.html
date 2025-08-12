@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>STATISTICS</title>
+    <title>BBHC Library - Statistics Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       html, body {
@@ -11,385 +11,504 @@
         margin: 0;
         position: relative;
       }
+      
       .bg-mesh-gradient {
-        background: radial-gradient(
-            at 0% 0%,
-            rgb(152, 123, 88),
-            transparent 50%
-          ),
-          linear-gradient(135deg, #ce7865df, #627fce);
-        padding-bottom: 400px; /* Space for footer */
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding-bottom: 100px;
       }
-      footer {
+      
+      .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .search-option {
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      
+      .search-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      
+      .stat-card {
+        transition: all 0.4s ease;
+        cursor: pointer;
+      }
+      
+      .stat-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+      
+      .countdown-overlay {
         position: fixed;
-        bottom: 0;
+        top: 0;
         left: 0;
         width: 100%;
-        z-index: 50;
-        max-height: 40vh;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      
+      .countdown-container {
+        text-align: center;
+        color: white;
+      }
+      
+      .countdown-number {
+        font-size: 8rem;
+        font-weight: bold;
+        color: #667eea;
+        text-shadow: 0 0 30px rgba(102, 126, 234, 0.8);
+        animation: countdownPulse 1s ease-in-out;
+      }
+      
+      @keyframes countdownPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+      }
+      
+      .logo-container {
+        display: none;
+        text-align: center;
+        animation: logoReveal 2s ease-out;
+      }
+      
+      @keyframes logoReveal {
+        0% { 
+          opacity: 0; 
+          transform: scale(0.5) rotate(-180deg); 
+        }
+        50% { 
+          opacity: 0.7; 
+          transform: scale(1.1) rotate(-90deg); 
+        }
+        100% { 
+          opacity: 1; 
+          transform: scale(1) rotate(0deg); 
+        }
+      }
+      
+      .logo-text {
+        font-size: 3rem;
+        font-weight: bold;
+        margin: 20px 0;
+        background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: textGlow 2s ease-in-out infinite alternate;
+      }
+      
+      @keyframes textGlow {
+        0% { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5)); }
+        100% { filter: drop-shadow(0 0 20px rgba(118, 75, 162, 0.8)); }
+      }
+      
+      .book-icon {
+        font-size: 4rem;
+        margin: 20px 0;
+        animation: bookFloat 3s ease-in-out infinite;
+      }
+      
+      @keyframes bookFloat {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+      }
+      
+      .suggestions {
+        max-height: 200px;
         overflow-y: auto;
-        background-color: rgb(31, 41, 55);
+        scrollbar-width: thin;
+        scrollbar-color: #667eea #f1f5f9;
+      }
+      
+      .suggestions::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      .suggestions::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 3px;
+      }
+      
+      .suggestions::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 3px;
+      }
+      
+      .suggestions::-webkit-scrollbar-thumb:hover {
+        background: #5a67d8;
       }
     </style>
   </head>
-  <body class="bg-red-100 font-sans text-pink-800 antialiased select-none">
-    <div
-      class="min-h-screen p-4 flex items-center justify-center bg-mesh-gradient text-black-800"
-    >
-      <main
-        class="w-full max-w-4xl bg-white bg-opacity-90 backdrop-blur-lg shadow-2xl rounded-3xl p-6 md:p-8 transition duration-500 hover:scale-[1.01] border border-gray-200"
-      >
-        <!-- Header -->
-        <header
-          class="mb-8 pb-4 border-b border-gray-300 flex flex-col md:flex-row justify-between items-center gap-4"
-        >
-          <div class="flex items-center gap-4 w-full md:w-auto">
-            <div class="flex items-center gap-4">
+  <body class="font-sans antialiased">
+    <!-- Countdown Overlay -->
+    <div id="countdownOverlay" class="countdown-overlay">
+      <div class="countdown-container">
+        <div id="countdownNumber" class="countdown-number">5</div>
+        <div class="text-xl text-gray-300 mb-8">Preparing your experience...</div>
+        
+        <div id="logoContainer" class="logo-container">
+          <div class="logo-text">E-JNANA</div>
+          <div class="book-icon">📚</div>
+          <div class="logo-text">SETU</div>
+          <div class="text-lg text-gray-300 mt-4">Welcome to BBHC Library System</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-mesh-gradient">
+      <main class="container mx-auto px-4 py-8">
+        <!-- Header Card -->
+        <div class="glass-card rounded-3xl p-8 mb-8 shadow-2xl">
+          <div class="flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-6">
               <img
                 src="{{url_for('static', filename='logo-removebg-preview.png')}}"
                 alt="College Logo"
-                class="h-16 md:h-20 w-auto object-contain"
+                class="h-20 w-auto object-contain"
               />
-              <div class="text-center md:text-left">
-                <h1 class="text-lg md:text-2xl font-bold text-[#6b1111]">
+              <div class="text-center lg:text-left">
+                <h1 class="text-2xl lg:text-3xl font-bold text-gray-800">
                   Dr. B. B. Hegde First Grade College, Kundapura
                 </h1>
-                <p class="text-xs md:text-sm text-gray-600 mt-1">
+                <p class="text-sm text-gray-600 mt-2">
                   A Unit of Coondapur Education Society (R)
+                </p>
+                <p class="text-lg font-semibold text-blue-600 mt-2">
+                  Library Management System
                 </p>
               </div>
             </div>
+            
+            <div class="flex flex-col gap-3">
+              <a
+                href="/"
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-xl shadow-lg bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                </svg>
+                <span>Home</span>
+              </a>
+              
+              <button
+                id="startCountdown"
+                class="inline-flex items-center gap-2 px-6 py-3 rounded-xl shadow-lg bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-xl"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span>Start Experience</span>
+              </button>
+            </div>
           </div>
-          <a
-            href="/"
-            class="inline-flex items-center gap-2 px-5 py-3 rounded-xl shadow-md bg-gradient-to-r from-red-500 to-indigo-600 hover:from-red-600 hover:to-indigo-700 text-white font-semibold transition-transform transform hover:scale-105"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              width="20"
-              height="20"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M3 9.75L12 4.5l9 5.25M4.5 10.5V19.5a.75.75 0 00.75.75H9V15h6v5.25h3.75a.75.75 0 00.75-.75V10.5"
-              />
-            </svg>
-            <span>Home</span>
-          </a>
-        </header>
+        </div>
 
         <!-- Search Section -->
-        <section class="mb-8">
-          <div
-            class="bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200"
-          >
-            {% if error %}
-            <div class="text-red-600 font-medium text-center mb-4">
-              {{ error }}
-            </div>
-            {% endif %}
-
-            <form
-              method="POST"
-              action="{{ url_for('search_statistics') }}"
-              class="space-y-4"
-            >
-              <div
-                class="flex flex-col md:flex-row items-center justify-center gap-4"
-              >
-                <p class="text-lg font-medium text-gray-700">Search By:</p>
-
-                <div class="flex items-center gap-2">
-                  <button
-                    type="button"
-                    id="prev"
-                    class="flex items-center justify-center w-9 h-9 rounded-full border border-gray-300 bg-white shadow-sm hover:bg-gray-100 focus:ring-2 focus:ring-pink-300 transition"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5 text-gray-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 19l-7-7 7-7"
-                      />
-                    </svg>
-                  </button>
-
-                  <div
-                    id="current-option"
-                    class="px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 shadow-sm text-gray-800 text-base min-w-[150px] text-center font-medium transition-opacity duration-150 opacity-100"
-                  >
-                    Title
-                  </div>
-
-                  <button
-                    type="button"
-                    id="next"
-                    class="flex items-center justify-center w-9 h-9 rounded-full border border-gray-300 bg-white shadow-sm hover:bg-gray-100 focus:ring-2 focus:ring-pink-300 transition"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="w-5 h-5 text-gray-600"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <input
-                type="hidden"
-                name="search_type"
-                id="search-type-hidden"
-                value="Title"
-              />
-
-              <div class="flex-1 w-full md:w-auto relative">
-                <input
-                  id="search-input"
-                  name="query"
-                  type="text"
-                  placeholder="Search Title..."
-                  class="w-full p-3 pl-10 text-blue-900 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-300 focus:border-blue-500 transition"
-                  required
-                  autofocus
-                />
-
-                <div
-                  class="absolute inset-y-0 left-0 flex items-center pl-3 text-green-500"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-             
-              <div
-                id="suggestions"
-                class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto hidden z-50"
-              >
-                <!-- suggestions dynamically inserted here -->
-              </div>
-
-               </div>
-
-              <button
-                type="submit"
-                class="w-full px-10 py-4 font-bold text-green-400 rounded-xl shadow-lg transition duration-300 transform focus:outline-none focus:ring-4 focus:ring-blue-300 bg-gradient-to-r from-red-600 to-indigo-700 hover:from-black-700 hover:to-indigo-800"
-              >
-                Search
-              </button>
-            </form>
+        <div class="glass-card rounded-3xl p-8 mb-8 shadow-2xl">
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Search Statistics</h2>
+            <p class="text-gray-600">Find detailed information about books in our library</p>
           </div>
-        </section>
 
-        <!-- Statistics Section -->
-        {% if total_books is not none %}
-        <section
-          class="mt-8 bg-gray-50 p-6 rounded-3xl shadow-inner border border-gray-200"
-        >
-          <h3 class="text-2xl font-bold mb-6 text-center text-[#6b1111]">
-            {{ header }}
-          </h3>
-
-          {% if total_books == 0 %}
-          <p class="text-center text-lg text-red-600 font-medium">
-            No results found.
-          </p>
-          {% else %}
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div
-              class="p-6 rounded-xl bg-gradient-to-br from-green-100 to-green-200 shadow-md transform hover:scale-105 transition"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-8 w-8 mx-auto mb-2 text-green-700"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 20H6a2 2 0 01-2-2V6a2 2 0 012-2h6m6 16V6m0 0l-4 4m4-4l4 4"
-                />
+          {% if error %}
+          <div class="bg-red-50 border border-red-200 rounded-xl p-4 mb-6">
+            <div class="flex items-center gap-3">
+              <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <p class="text-xl font-semibold text-green-900">Issued</p>
-              <p class="text-3xl font-bold text-green-700 mt-2">
-                {{ issued_books }} Books
-              </p>
-            </div>
-
-            <div
-              class="p-6 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 shadow-md transform hover:scale-105 transition"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="w-8 h-8 text-blue-600 mx-auto mb-2"
-              >
-                <path
-                  d="M3.75 6.75c2.25-1.25 5.25-1.25 7.5 0v10.5c-2.25-1.25-5.25-1.25-7.5 0V6.75zm16.5 0c-2.25-1.25-5.25-1.25-7.5 0v10.5c2.25-1.25 5.25-1.25 7.5 0V6.75z"
-                />
-              </svg>
-              <p class="text-xl font-semibold text-blue-900">Available</p>
-              <p class="text-3xl font-bold text-blue-700 mt-2">
-                {{ available_books }} Books
-              </p>
-            </div>
-
-            <div
-              class="p-6 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 shadow-md transform hover:scale-105 transition"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-8 w-8 mx-auto mb-2 text-purple-700"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                />
-              </svg>
-              <p class="text-xl font-semibold text-purple-900">Total Books Copies</p>
-              <p class="text-3xl font-bold text-purple-700 mt-2">
-                {{ total_books }} Books
-              </p>
+              <span class="text-red-700 font-medium">{{ error }}</span>
             </div>
           </div>
           {% endif %}
-        </section>
+
+          <form method="POST" action="{{ url_for('search_statistics') }}" class="space-y-6">
+            <!-- Search Type Selection -->
+            <div class="flex flex-col items-center gap-4">
+              <label class="text-lg font-medium text-gray-700">Search By:</label>
+              
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-2xl">
+                <div class="search-option bg-white rounded-xl p-4 border-2 border-transparent hover:border-blue-300 cursor-pointer transition-all duration-300" data-type="Title">
+                  <div class="text-center">
+                    <div class="text-2xl mb-2">📖</div>
+                    <div class="font-medium text-gray-800">Title</div>
+                  </div>
+                </div>
+                
+                <div class="search-option bg-white rounded-xl p-4 border-2 border-transparent hover:border-blue-300 cursor-pointer transition-all duration-300" data-type="Author">
+                  <div class="text-center">
+                    <div class="text-2xl mb-2">✍️</div>
+                    <div class="font-medium text-gray-800">Author</div>
+                  </div>
+                </div>
+                
+                <div class="search-option bg-white rounded-xl p-4 border-2 border-transparent hover:border-blue-300 cursor-pointer transition-all duration-300" data-type="Department">
+                  <div class="text-center">
+                    <div class="text-2xl mb-2">🏢</div>
+                    <div class="font-medium text-gray-800">Department</div>
+                  </div>
+                </div>
+                
+                <div class="search-option bg-white rounded-xl p-4 border-2 border-transparent hover:border-blue-300 cursor-pointer transition-all duration-300" data-type="Department Code">
+                  <div class="text-center">
+                    <div class="text-2xl mb-2">🔢</div>
+                    <div class="font-medium text-gray-800">Dept Code</div>
+                  </div>
+                </div>
+              </div>
+              
+              <input type="hidden" name="search_type" id="search-type-hidden" value="Title" />
+            </div>
+
+            <!-- Search Input -->
+            <div class="relative max-w-2xl mx-auto">
+              <input
+                id="search-input"
+                name="query"
+                type="text"
+                placeholder="Search by Title..."
+                class="w-full p-4 pl-12 text-gray-800 border-2 border-gray-200 rounded-xl shadow-sm focus:ring-4 focus:ring-blue-300 focus:border-blue-500 transition-all duration-300 text-lg"
+                required
+                autofocus
+              />
+              
+              <div class="absolute inset-y-0 left-0 flex items-center pl-4">
+                <svg class="h-6 w-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+              </div>
+              
+              <!-- Suggestions Dropdown -->
+              <div id="suggestions" class="absolute top-full left-0 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-48 overflow-y-auto hidden z-50 suggestions">
+                <!-- Suggestions will be dynamically inserted here -->
+              </div>
+            </div>
+
+            <!-- Search Button -->
+            <div class="text-center">
+              <button
+                type="submit"
+                class="px-12 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold text-lg rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300"
+              >
+                <span class="flex items-center justify-center gap-3">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                  Search Library
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Statistics Results -->
+        {% if total_books is not none %}
+        <div class="glass-card rounded-3xl p-8 shadow-2xl">
+          <div class="text-center mb-8">
+            <h3 class="text-3xl font-bold text-gray-800 mb-2">{{ header }}</h3>
+            <p class="text-gray-600">Comprehensive overview of library resources</p>
+          </div>
+
+          {% if total_books == 0 %}
+          <div class="text-center py-12">
+            <div class="text-6xl mb-4">📚</div>
+            <p class="text-xl text-red-600 font-medium">No results found for your search.</p>
+            <p class="text-gray-600 mt-2">Try adjusting your search criteria.</p>
+          </div>
+          {% else %}
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Issued Books Card -->
+            <div class="stat-card bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-8 text-center border border-green-200">
+              <div class="text-4xl mb-4">📚</div>
+              <h4 class="text-xl font-semibold text-green-800 mb-2">Books Issued</h4>
+              <p class="text-4xl font-bold text-green-700">{{ issued_books }}</p>
+              <p class="text-sm text-green-600 mt-2">Currently borrowed</p>
+            </div>
+
+            <!-- Available Books Card -->
+            <div class="stat-card bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-8 text-center border border-blue-200">
+              <div class="text-4xl mb-4">📖</div>
+              <h4 class="text-xl font-semibold text-blue-800 mb-2">Books Available</h4>
+              <p class="text-4xl font-bold text-blue-700">{{ available_books }}</p>
+              <p class="text-sm text-blue-600 mt-2">Ready for borrowing</p>
+            </div>
+
+            <!-- Total Books Card -->
+            <div class="stat-card bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-8 text-center border border-purple-200">
+              <div class="text-4xl mb-4">🏛️</div>
+              <h4 class="text-xl font-semibold text-purple-800 mb-2">Total Collection</h4>
+              <p class="text-4xl font-bold text-purple-700">{{ total_books }}</p>
+              <p class="text-sm text-purple-600 mt-2">Complete library</p>
+            </div>
+          </div>
+          
+          <!-- Additional Info -->
+          <div class="mt-8 p-6 bg-gray-50 rounded-xl text-center">
+            <p class="text-gray-700">
+              <span class="font-semibold">Collection Status:</span> 
+              {% if available_books > issued_books %}
+                <span class="text-green-600">Excellent availability</span>
+              {% elif available_books == issued_books %}
+                <span class="text-yellow-600">Moderate availability</span>
+              {% else %}
+                <span class="text-red-600">High demand</span>
+              {% endif %}
+            </p>
+          </div>
+          {% endif %}
+        </div>
         {% endif %}
       </main>
     </div>
 
     <script>
-const options = ["Title", "Author", "Department", "Department Code"];
-let currentIndex = 0;
-
-const display = document.getElementById("current-option");
-const prev = document.getElementById("prev");
-const next = document.getElementById("next");
-const searchInput = document.getElementById("search-input");
-const hiddenField = document.getElementById("search-type-hidden");
-const suggestionsBox = document.getElementById("suggestions");
-
-function updateDisplay() {
-  display.classList.add("opacity-0");
-  setTimeout(() => {
-    display.textContent = options[currentIndex];
-    display.classList.remove("opacity-0");
-    display.classList.add("opacity-100");
-    searchInput.placeholder = "Search " + options[currentIndex] + "...";
-    hiddenField.value = options[currentIndex];
-    fetchSuggestions(searchInput.value);
-  }, 150);
-}
-
-prev.addEventListener("click", () => {
-  currentIndex = (currentIndex - 1 + options.length) % options.length;
-  updateDisplay();
-});
-
-next.addEventListener("click", () => {
-  currentIndex = (currentIndex + 1) % options.length;
-  updateDisplay();
-});
-
-let currentQuery = ""; // to track user’s current input
-
-searchInput.addEventListener("input", () => {
-  currentQuery = searchInput.value;
-  fetchSuggestions(currentQuery);
-});
-
-function fetchSuggestions(query) {
-  if (!query.trim()) {
-    suggestionsBox.classList.add("hidden");
-    suggestionsBox.innerHTML = "";
-    return;
-  }
-
-  fetch(`/recommendation?type=${encodeURIComponent(options[currentIndex])}&query=${encodeURIComponent(query)}`)
-    .then(res => res.json())
-    .then(suggestions => {
-      if (!suggestions.length) {
-        suggestionsBox.classList.add("hidden");
-        return;
-      }
-      suggestionsBox.innerHTML = "";
-      suggestions.forEach(text => {
-        const div = document.createElement("div");
-        div.className = "flex justify-between items-center px-3 py-2 cursor-pointer hover:bg-gray-100";
-        div.innerHTML = `
-          <div class="flex items-center gap-2 text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <span>${text}</span>
-          </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500 transform rotate-[-45deg]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 7l-10 10m0-10h10v10"/>
-          </svg>
-        `;
-        
-        div.addEventListener("click", () => {
-          searchInput.value = text;  // set permanently
-          currentQuery = text;
-          suggestionsBox.classList.add("hidden");
+      // Search type selection
+      const searchOptions = document.querySelectorAll('.search-option');
+      const searchTypeHidden = document.getElementById('search-type-hidden');
+      const searchInput = document.getElementById('search-input');
+      const suggestionsBox = document.getElementById('suggestions');
+      
+      searchOptions.forEach(option => {
+        option.addEventListener('click', () => {
+          // Remove active state from all options
+          searchOptions.forEach(opt => opt.classList.remove('border-blue-500', 'bg-blue-50'));
+          
+          // Add active state to selected option
+          option.classList.add('border-blue-500', 'bg-blue-50');
+          
+          // Update hidden field and placeholder
+          const searchType = option.dataset.type;
+          searchTypeHidden.value = searchType;
+          searchInput.placeholder = `Search by ${searchType}...`;
+          
+          // Clear suggestions and fetch new ones
+          suggestionsBox.classList.add('hidden');
+          fetchSuggestions(searchInput.value, searchType);
         });
-        suggestionsBox.appendChild(div);
       });
-      suggestionsBox.classList.remove("hidden");
-    });
-}
-
-document.addEventListener("click", (event) => {
-  if (!suggestionsBox.contains(event.target) && event.target !== searchInput) {
-    suggestionsBox.classList.add("hidden");
-  }
-}); 
-</script>
-
-
+      
+      // Set initial active state
+      searchOptions[0].classList.add('border-blue-500', 'bg-blue-50');
+      
+      // Search suggestions
+      let currentQuery = "";
+      
+      searchInput.addEventListener("input", () => {
+        currentQuery = searchInput.value;
+        const searchType = searchTypeHidden.value;
+        fetchSuggestions(currentQuery, searchType);
+      });
+      
+      function fetchSuggestions(query, type) {
+        if (!query.trim()) {
+          suggestionsBox.classList.add("hidden");
+          suggestionsBox.innerHTML = "";
+          return;
+        }
+        
+        fetch(`/recommendation?type=${encodeURIComponent(type)}&query=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(suggestions => {
+            if (!suggestions.length) {
+              suggestionsBox.classList.add("hidden");
+              return;
+            }
+            
+            suggestionsBox.innerHTML = "";
+            suggestions.forEach(text => {
+              const div = document.createElement("div");
+              div.className = "flex justify-between items-center px-4 py-3 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0 transition-colors duration-200";
+              div.innerHTML = `
+                <div class="flex items-center gap-3 text-gray-700">
+                  <svg class="h-4 w-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                  </svg>
+                  <span>${text}</span>
+                </div>
+                <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              `;
+              
+              div.addEventListener("click", () => {
+                searchInput.value = text;
+                currentQuery = text;
+                suggestionsBox.classList.add("hidden");
+              });
+              
+              suggestionsBox.appendChild(div);
+            });
+            
+            suggestionsBox.classList.remove("hidden");
+          })
+          .catch(error => {
+            console.error("Error fetching suggestions:", error);
+          });
+      }
+      
+      // Hide suggestions when clicking outside
+      document.addEventListener("click", (event) => {
+        if (!suggestionsBox.contains(event.target) && event.target !== searchInput) {
+          suggestionsBox.classList.add("hidden");
+        }
+      });
+      
+      // Countdown functionality
+      const startCountdownBtn = document.getElementById('startCountdown');
+      const countdownOverlay = document.getElementById('countdownOverlay');
+      const countdownNumber = document.getElementById('countdownNumber');
+      const logoContainer = document.getElementById('logoContainer');
+      
+      startCountdownBtn.addEventListener('click', () => {
+        countdownOverlay.style.display = 'flex';
+        startCountdown();
+      });
+      
+      function startCountdown() {
+        let countdown = 5;
+        
+        const interval = setInterval(() => {
+          countdownNumber.textContent = countdown;
+          countdownNumber.classList.add('countdownPulse');
+          
+          setTimeout(() => {
+            countdownNumber.classList.remove('countdownPulse');
+          }, 500);
+          
+          countdown--;
+          
+          if (countdown < 0) {
+            clearInterval(interval);
+            
+            // Hide countdown, show logo
+            countdownNumber.style.display = 'none';
+            document.querySelector('.text-xl').style.display = 'none';
+            logoContainer.style.display = 'block';
+            
+            // Redirect after logo animation
+            setTimeout(() => {
+              window.location.href = '/library';
+            }, 3000);
+          }
+        }, 1000);
+      }
+      
+      // Keyboard shortcut to close countdown (Escape key)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && countdownOverlay.style.display === 'flex') {
+          countdownOverlay.style.display = 'none';
+        }
+      });
+    </script>
   </body>
 </html>
